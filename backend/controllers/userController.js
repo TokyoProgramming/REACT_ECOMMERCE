@@ -46,10 +46,6 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('User already exists');
   }
   if (userExists && userExists.isVerify === false) {
-    //   const secret = await TwoFactorGenerateSend(user.email, req);
-    //   user.secret = secret;
-    //   await user.save();
-    //   res.json({ message: 'token sent' });
     res.status(400);
     throw new Error('User already exists');
   }
@@ -70,7 +66,7 @@ const registerUser = asyncHandler(async (req, res) => {
       token: generateToken(user._id),
     });
 
-    res.json(user);
+    // res.json(user);
   } else {
     res.status(400);
     throw new Error('Invalid User information');
