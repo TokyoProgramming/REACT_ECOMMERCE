@@ -1,19 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Route } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Container, Navbar, Nav, NavDropdown } from 'react-bootstrap';
 import { logout } from '../actions/userActions';
+import { GET_USER_CART_RESET } from '../constants/cartConstants';
 
 import Search from './Search';
 
 const Header = () => {
   const dispatch = useDispatch();
+
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
+
+  const userCart = useSelector((state) => state.userCart);
+  const { loading, userCartItem } = userCart;
+
   const logoutHandler = () => {
+    dispatch({ type: GET_USER_CART_RESET });
     dispatch(logout());
   };
+
+  const totalItem = userCartItem.reduce((acc, item) => acc + item.qty, 0);
+  useEffect(() => {}, [loading, userCartItem, userInfo, totalItem]);
 
   return (
     <header>
@@ -29,7 +39,12 @@ const Header = () => {
             <Nav className="ms-auto">
               <LinkContainer to="/cart">
                 <Nav.Link>
-                  <i className="fas fa-shopping-cart"></i> Cart
+                  <i className="fas fa-shopping-cart"></i>{' '}
+                  <span className="badge badge-warning" id="lblCartCount">
+                    {' '}
+                    {totalItem}
+                  </span>
+                  Cart
                 </Nav.Link>
               </LinkContainer>
 

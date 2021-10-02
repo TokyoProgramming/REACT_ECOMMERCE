@@ -1,5 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Order from '../models/orderModel.js';
+import User from '../models/userModel.js';
+import { sendEmailCtr } from './emailController.js';
 
 // @desc create new order
 // @route POST /api/orders
@@ -15,14 +17,17 @@ const addOrderItems = asyncHandler(async (req, res) => {
     totalPrice,
   } = req.body;
 
+  const orders = await Order.find({ user: req.user._id });
+  const notPaidOrders = orders.filter((item) => item.isPaid === false);
+
   if (orderItems && orderItems.length === 0) {
     res.status(400);
     throw new Error('No order items');
     return;
   } else {
     const order = new Order({
-      orderItems,
       user: req.user._id,
+      orderItems,
       shippingAddress,
       paymentMethod,
       itemPrice,
@@ -57,6 +62,29 @@ const getOrderItems = asyncHandler(async (req, res) => {
 // @access Private
 const updateOrderToPaid = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
+  const user_id = order.user;
+  const user = await User.findById(user_id);
+  const userName = user.name;
+  const userEmail = user.email;
+
+  const addDecimals = (num) => {
+    return (Math.round(num * 100) / 100).toFixed(2);
+  };
+
+  const price = Number(order.totalPrice);
+  const shipping = Number(order.shippingPrice);
+  const tax = Number(order.taxPrice);
+
+  const actualTotalPrice = addDecimals(
+    order.orderItems.reduce((acc, item) => acc + item.price * item.qty, 0)
+  );
+  const itemPrice = price - shipping - tax;
+  const usedPoint = actualTotalPrice - itemPrice;
+  console.log(usedPoint);
+
+  const getPoint = Math.floor(actualTotalPrice / 100);
+
+  const currentPoint = user.point + getPoint - usedPoint;
 
   if (order) {
     order.isPaid = true;
@@ -69,6 +97,14 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
     };
 
     const updatedOrder = await order.save();
+    user.point = currentPoint;
+    await user.save();
+
+    await sendEmailCtr(
+      userEmail,
+      'Order Confirmed',
+      `Dear ${userName} we got your order , please wait until it is delivered`
+    );
     res.json(updatedOrder);
   } else {
     res.status(404);
@@ -98,11 +134,22 @@ const getOrders = asyncHandler(async (req, res) => {
 const updateOrderToDelivered = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
 
+  const user_id = order.user;
+  const user = await User.findById(user_id);
+  const userName = user.name;
+  const userEmail = user.email;
+
   if (order) {
     order.isDelivered = true;
     order.deliveredAt = Date.now();
 
     const updatedOrder = await order.save();
+    await sendEmailCtr(
+      userEmail,
+      'Now it is on the way',
+      `Dear ${userName} we just shipped your goods , please wait until it is delivered`
+    );
+
     res.json(updatedOrder);
   } else {
     res.status(404);

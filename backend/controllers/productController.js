@@ -1,11 +1,12 @@
 import asyncHandler from 'express-async-handler';
 import Product from '../models/productModel.js';
+import Order from '../models/orderModel.js';
 
 // @desc Fetch all products
 // @route GET / api/products
 // @access Public
 const getProducts = asyncHandler(async (req, res) => {
-  const pageSize = 2;
+  const pageSize = 8;
   const page = Number(req.query.pageNumber) || 1;
 
   const keyword = req.query.keyword
@@ -105,7 +106,23 @@ const createProductReview = asyncHandler(async (req, res) => {
 
   const product = await Product.findById(req.params.id);
 
+  const orders = await Order.find({ user: req.user._id });
+
+  const ordersItems = [].concat.apply(
+    [],
+    orders.map((order) =>
+      order.orderItems.map((item) => item.product.toString())
+    )
+  );
+
   if (product) {
+    const hasBought = ordersItems.includes(product._id.toString());
+
+    if (!hasBought) {
+      res.status(400);
+      throw new Error('You can only review products you bought');
+    }
+
     const alreadyReviewed = product.reviews.find(
       (r) => r.user.toString() === req.user._id.toString()
     );
@@ -144,6 +161,35 @@ const getTopProduct = asyncHandler(async (req, res) => {
   res.json(products);
 });
 
+// @desc update countInStock
+// @route update /api/products/countinstock
+// @access Public
+const updateCountInStock = asyncHandler(async (req, res) => {
+  const orders = req.body;
+
+  const orderedItems = [].concat.apply(
+    [],
+    orders.map((item) => item.product.toString())
+  );
+  const products = await Product.find({
+    _id: orderedItems,
+  });
+
+  if (products) {
+    const size = products.length;
+    for (let i = 0; i < size; i++) {
+      const element = products[i];
+      const id = element._id.toString();
+      const targetOrder = orders.find((item) => item.product === id);
+      const orderedQty = targetOrder.qty;
+
+      element.countInStock = Number(element.countInStock) - Number(orderedQty);
+      await element.save();
+    }
+  }
+  res.json(products);
+});
+
 export {
   getProducts,
   getProductById,
@@ -152,4 +198,5 @@ export {
   updateProduct,
   createProductReview,
   getTopProduct,
+  updateCountInStock,
 };

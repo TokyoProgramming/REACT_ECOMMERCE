@@ -6,6 +6,7 @@ import Message from '../components/Message';
 import Loader from '../components/Loader';
 import FormContainer from '../components/FormContainer';
 import { register } from '../actions/userActions';
+import { generateToken } from '../actions/userActions';
 
 const RegisterScreen = ({ location, history }) => {
   const [name, setName] = useState('');
@@ -21,11 +22,18 @@ const RegisterScreen = ({ location, history }) => {
   const userRegister = useSelector((state) => state.userRegister);
   const { loading, userInfo, error } = userRegister;
 
+  // const userSendToken = useSelector((state) => state.userSendToken);
+  // const { loading: sendTokenLoading, error: sendTokenError } = userSendToken;
+
   useEffect(() => {
     if (userInfo) {
-      history.push(redirect);
+      // history.push(redirect);
+      if (!loading) {
+        dispatch(generateToken(userInfo.email));
+        history.push(`/token/${userInfo._id}/verify`);
+      }
     }
-  }, [history, userInfo, redirect]);
+  }, [history, userInfo, redirect, dispatch, loading]);
 
   const submitHandler = (e) => {
     e.preventDefault();

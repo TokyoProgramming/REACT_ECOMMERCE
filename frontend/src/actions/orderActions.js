@@ -3,6 +3,7 @@ import { CART_CLEAR_ITEMS } from '../constants/cartConstants';
 import {
   ORDER_CREATE_FAIL,
   ORDER_CREATE_REQUEST,
+  ORDER_CREATE_RESET,
   ORDER_CREATE_SUCCESS,
   ORDER_DELIVER_FAIL,
   ORDER_DELIVER_REQUEST,
@@ -48,6 +49,9 @@ export const createOrder = (order) => async (dispatch, getState) => {
       payload: data,
     });
     localStorage.removeItem('cartItems');
+    dispatch({
+      type: ORDER_CREATE_RESET,
+    });
   } catch (error) {
     dispatch({
       type: ORDER_CREATE_FAIL,
@@ -71,6 +75,7 @@ export const getOrderDetails = (id) => async (dispatch, getState) => {
 
     const config = {
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
@@ -97,11 +102,9 @@ export const payOrder =
       dispatch({
         type: ORDER_PAY_REQUEST,
       });
-
       const {
         userLogin: { userInfo },
       } = getState();
-
       const config = {
         headers: {
           'Content-Type': 'application/json',
@@ -113,7 +116,6 @@ export const payOrder =
         paymentResult,
         config
       );
-
       dispatch({
         type: ORDER_PAY_SUCCESS,
         payload: data,
@@ -141,6 +143,7 @@ export const myListOrders = () => async (dispatch, getState) => {
 
     const config = {
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
@@ -173,6 +176,7 @@ export const listOrders = () => async (dispatch, getState) => {
 
     const config = {
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
@@ -205,6 +209,7 @@ export const deliverOrder = (order) => async (dispatch, getState) => {
 
     const config = {
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userInfo.token}`,
       },
     };

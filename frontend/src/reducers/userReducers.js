@@ -25,6 +25,12 @@ import {
   USER_UPDATE_ADMIN_FAIL,
   USER_UPDATE_ADMIN_RESET,
   USER_UPDATE_RESET,
+  USER_SEND_TOKEN_REQUEST,
+  USER_SEND_TOKEN_SUCCESS,
+  USER_SEND_TOKEN_FAIL,
+  USER_VERIFY_TOKEN_REQUEST,
+  USER_VERIFY_TOKEN_SUCCESS,
+  USER_VERIFY_TOKEN_FAIL,
 } from '../constants/userConstants';
 
 export const userLoginReducer = (state = {}, action) => {
@@ -33,10 +39,8 @@ export const userLoginReducer = (state = {}, action) => {
       return { loading: true };
     case USER_LOGIN_SUCCESS:
       return { loading: false, userInfo: action.payload };
-
     case USER_LOGIN_FAIL:
       return { loading: false, error: action.payload };
-
     case USER_LOGIN_LOGOUT:
       return {};
     default:
@@ -51,6 +55,32 @@ export const userRegisterReducer = (state = {}, action) => {
     case USER_REGISTER_SUCCESS:
       return { loading: false, userInfo: action.payload };
     case USER_REGISTER_FAIL:
+      return { loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
+
+export const userSendTokenReducer = (state = {}, action) => {
+  switch (action.type) {
+    case USER_SEND_TOKEN_REQUEST:
+      return { loading: true };
+    case USER_SEND_TOKEN_SUCCESS:
+      return { loading: false, success: true, sendTokenUser: action.payload };
+    case USER_SEND_TOKEN_FAIL:
+      return { loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
+
+export const userVerifyTokenReducer = (state = {}, action) => {
+  switch (action.type) {
+    case USER_VERIFY_TOKEN_REQUEST:
+      return { loading: true };
+    case USER_VERIFY_TOKEN_SUCCESS:
+      return { loading: false, success: true };
+    case USER_VERIFY_TOKEN_FAIL:
       return { loading: false, error: action.payload };
     default:
       return state;

@@ -15,12 +15,13 @@ import {
   ORDER_PAY_RESET,
   ORDER_DELIVER_RESET,
 } from '../constants/orderConstants';
+import { resetCartItems } from '../actions/cartActions';
+import { updateProductCountInStock } from '../actions/productActions';
+import { updateUserProfile } from '../actions/userActions';
 
 const OrderScreen = ({ match, history }) => {
   const orderId = match.params.id;
-
   const [sdkReady, setSdkReady] = useState(false);
-
   const dispatch = useDispatch();
 
   const orderDetails = useSelector((state) => state.orderDetails);
@@ -34,6 +35,10 @@ const OrderScreen = ({ match, history }) => {
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
+  const userId = userInfo._id;
+
+  const userCart = useSelector((state) => state.userCart);
+  const { userCartItem } = userCart;
 
   if (!loading) {
     //   Calculate prices
@@ -45,6 +50,7 @@ const OrderScreen = ({ match, history }) => {
       order.orderItems.reduce((acc, item) => acc + item.price * item.qty, 0)
     );
   }
+  // const usePoint = 0;
 
   useEffect(() => {
     if (!userInfo) {
@@ -65,8 +71,8 @@ const OrderScreen = ({ match, history }) => {
 
     if (!order || successPay || successDeliver || order._id !== orderId) {
       dispatch({ type: ORDER_PAY_RESET });
-      dispatch({ type: ORDER_DELIVER_RESET });
       dispatch(getOrderDetails(orderId));
+      dispatch({ type: ORDER_DELIVER_RESET });
     } else if (!order.isPaid) {
       if (!window.paypal) {
         addPayPalScript();
@@ -74,10 +80,23 @@ const OrderScreen = ({ match, history }) => {
         setSdkReady(true);
       }
     }
+    if (successPay) {
+      dispatch(updateProductCountInStock(userCartItem));
+      dispatch(resetCartItems());
+
+      dispatch(
+        updateUserProfile({
+          _id: userId,
+          name: userInfo.name,
+          email: userInfo.email,
+          isAdmin: userInfo.isAdmin,
+        })
+      );
+    }
+    // eslint-disable-next-line
   }, [dispatch, orderId, successPay, successDeliver, order, userInfo, history]);
 
   const successPaymentHandler = (paymentResult) => {
-    console.log(paymentResult);
     dispatch(payOrder(orderId, paymentResult));
   };
 
@@ -193,6 +212,24 @@ const OrderScreen = ({ match, history }) => {
                 <Row>
                   <Col>Total</Col>
                   <Col>${order.totalPrice}</Col>
+                </Row>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Row>
+                  <Col>Use Point</Col>
+                  <Col>
+                    {Number(order.itemsPrice) +
+                      order.shippingPrice +
+                      order.taxPrice -
+                      order.totalPrice}
+                  </Col>
+                </Row>
+              </ListGroup.Item>
+
+              <ListGroup.Item>
+                <Row>
+                  <Col>Get Point</Col>
+                  <Col>{Math.floor(order.itemsPrice / 100)}</Col>
                 </Row>
               </ListGroup.Item>
               {!order.isPaid && (

@@ -17,12 +17,18 @@ import {
   USER_REGISTER_FAIL,
   USER_REGISTER_REQUEST,
   USER_REGISTER_SUCCESS,
+  USER_SEND_TOKEN_FAIL,
+  USER_SEND_TOKEN_REQUEST,
+  USER_SEND_TOKEN_SUCCESS,
   USER_UPDATE_ADMIN_FAIL,
   USER_UPDATE_ADMIN_REQUEST,
   USER_UPDATE_ADMIN_SUCCESS,
   USER_UPDATE_FAIL,
   USER_UPDATE_REQUEST,
   USER_UPDATE_SUCCESS,
+  USER_VERIFY_TOKEN_FAIL,
+  USER_VERIFY_TOKEN_REQUEST,
+  USER_VERIFY_TOKEN_SUCCESS,
 } from '../constants/userConstants';
 import axios from 'axios';
 import { ORDER_LIST_MY_RESET } from '../constants/orderConstants';
@@ -44,21 +50,38 @@ export const login = (email, password) => async (dispatch) => {
       { email, password },
       config
     );
+    const verify = data.isVerify;
+    if (verify) {
+      dispatch({
+        type: USER_LOGIN_SUCCESS,
+        payload: data,
+      });
 
-    dispatch({
-      type: USER_LOGIN_SUCCESS,
-      payload: data,
-    });
-
-    localStorage.setItem('userInfo', JSON.stringify(data));
+      localStorage.setItem('userInfo', JSON.stringify(data));
+    } else {
+      dispatch({
+        type: USER_LOGIN_FAIL,
+      });
+    }
   } catch (error) {
-    dispatch({
-      type: USER_LOGIN_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
+    if ((error.message = 'Complete 2FA Auth')) {
+      const text =
+        `${email} has not finished 2FA Auth Yet.` +
+        'we sent you email please finish auth';
+
+      dispatch({
+        type: USER_LOGIN_FAIL,
+        payload: text,
+      });
+    } else {
+      dispatch({
+        type: USER_LOGIN_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
   }
 };
 
@@ -97,15 +120,78 @@ export const register = (name, email, password) => async (dispatch) => {
       payload: data,
     });
 
+    // localStorage.setItem('userInfo', JSON.stringify(data));
+  } catch (error) {
+    dispatch({
+      type: USER_REGISTER_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+
+export const generateToken = (email, id) => async (dispatch) => {
+  try {
+    dispatch({
+      type: USER_SEND_TOKEN_REQUEST,
+    });
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    const { data } = await axios.post('/api/users/generate', { email }, config);
+
+    dispatch({
+      type: USER_SEND_TOKEN_SUCCESS,
+      payload: data,
+    });
+  } catch (error) {
+    dispatch({
+      type: USER_SEND_TOKEN_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+
+export const verifyToken = (user, token) => async (dispatch) => {
+  const email = user.email;
+  const id = user._id;
+  try {
+    dispatch({
+      type: USER_VERIFY_TOKEN_REQUEST,
+    });
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    const { data } = await axios.post(
+      `/api/users/${id}/verify`,
+      { email, token },
+      config
+    );
+
+    console.log(data);
+
+    dispatch({
+      type: USER_VERIFY_TOKEN_SUCCESS,
+    });
+
     dispatch({
       type: USER_LOGIN_SUCCESS,
       payload: data,
     });
-
-    localStorage.setItem('userInfo', JSON.stringify(data));
   } catch (error) {
     dispatch({
-      type: USER_REGISTER_FAIL,
+      type: USER_VERIFY_TOKEN_FAIL,
       payload:
         error.response && error.response.data.message
           ? error.response.data.message
@@ -199,6 +285,7 @@ export const listUsers = () => async (dispatch, getState) => {
 
     const config = {
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
@@ -231,6 +318,7 @@ export const deleteUser = (id) => async (dispatch, getState) => {
 
     const config = {
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userInfo.token}`,
       },
     };

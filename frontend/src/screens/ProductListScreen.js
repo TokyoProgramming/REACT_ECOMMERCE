@@ -83,11 +83,11 @@ const ProductListScreen = ({ history, match }) => {
           </Button>
         </Col>
       </Row>
-      {loadingCreate && <Loader />}
+
       {errorCreate && <Message variant="danger">{errorCreate} </Message>}
-      {loadingDelete && <Loader />}
       {errorDelete && <Message variant="danger">{errorDelete} </Message>}
-      {loading ? (
+
+      {loadingCreate || loadingDelete || loading ? (
         <Loader />
       ) : error ? (
         <Message variant="danger">{error} </Message>

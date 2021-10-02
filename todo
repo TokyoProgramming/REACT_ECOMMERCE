@@ -1,0 +1,33 @@
+## 1. add countInStock to Cart userCart.userCartItem
+
+## 2. update Cart Item
+
+## 3. delete Cart Item
+
+## 4. cart Icon add Item number
+
+## 5. after pay
+
+    ## 1. reset cart
+    ## 2. decrease countInStock number
+
+## 6. after bought && shipped sent email to customer
+
+## 7. add point to customer and be able to use it
+
+    ## 1. use Point => update Point
+        Total - Point, userInfo, Items Price , Point - used Point
+    ## 2. add Point => update Point
+        userInfo, Items Price // 100 => added Point => Point
+    ## 3. use Point get User
+
+8. add stripe
+9. create admin panel chart.js
+
+## 10. two-step verification
+
+    ## 1. register => send token => verify
+    ## 2. login => not verify => send token => change the page
+    ##    history.push('/token/:id/verify')
+    ## 3. token verify page , send token to the email again
+    ## 4. verify token => login (get jwt token)

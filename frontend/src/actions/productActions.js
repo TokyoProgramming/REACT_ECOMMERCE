@@ -20,6 +20,9 @@ import {
   PRODUCT_TOP_REQUEST,
   PRODUCT_TOP_SUCCESS,
   PRODUCT_TOP_FAIL,
+  PRODUCT_UPDATE_STOCK_REQUEST,
+  PRODUCT_UPDATE_STOCK_SUCCESS,
+  PRODUCT_UPDATE_STOCK_FAIL,
 } from '../constants/productConstants';
 import axios from 'axios';
 
@@ -79,6 +82,7 @@ export const deleteProduct = (id) => async (dispatch, getState) => {
 
     const config = {
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
@@ -110,6 +114,7 @@ export const createProduct = () => async (dispatch, getState) => {
 
     const config = {
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
@@ -217,3 +222,36 @@ export const listTopProducts = () => async (dispatch) => {
     });
   }
 };
+
+export const updateProductCountInStock =
+  (product) => async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: PRODUCT_UPDATE_STOCK_REQUEST,
+      });
+
+      const {
+        userLogin: { userInfo },
+      } = getState();
+
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+      await axios.put('/api/products/countinstock', product, config);
+
+      dispatch({
+        type: PRODUCT_UPDATE_STOCK_SUCCESS,
+      });
+    } catch (error) {
+      dispatch({
+        type: PRODUCT_UPDATE_STOCK_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };

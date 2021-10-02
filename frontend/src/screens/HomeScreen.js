@@ -10,6 +10,8 @@ import Meta from '../components/Meta';
 import ProductCarousel from '../components/ProductCarousel';
 
 import { listProducts } from '../actions/productActions';
+import { getUserCart } from '../actions/cartActions';
+// import { getUserCart } from '../actions/cartActions';
 
 const HomeScreen = ({ match }) => {
   const keyword = match.params.keyword;
@@ -20,8 +22,16 @@ const HomeScreen = ({ match }) => {
   const productList = useSelector((state) => state.productList);
   const { loading, error, products, page, pages } = productList;
 
+  const productTopRated = useSelector((state) => state.productTopRated);
+  const { loading: productTopLoading } = productTopRated;
+
+  const userCart = useSelector((state) => state.userCart);
+  const { loading: userCartLoading } = userCart;
+
   useEffect(() => {
     dispatch(listProducts(keyword, pageNumber));
+    dispatch(getUserCart());
+    // dispatch(getUserCart());
   }, [dispatch, keyword, pageNumber]);
 
   return (
@@ -36,7 +46,8 @@ const HomeScreen = ({ match }) => {
         </Link>
       )}
       <h1>Latest Products</h1>
-      {loading ? (
+
+      {loading || productTopLoading || userCartLoading ? (
         <Loader />
       ) : error ? (
         <Message variant="danger">{error} </Message>

@@ -19,6 +19,8 @@ import Loader from '../components/Loader';
 import Message from '../components/Message';
 import Meta from '../components/Meta';
 import { PRODUCT_REVIEW_RESET } from '../constants/productConstants';
+import { myListOrders } from '../actions/orderActions';
+import { addToCartItem } from '../actions/cartActions';
 
 const ProductScreen = ({ match, history }) => {
   const [qty, setQty] = useState(1);
@@ -42,13 +44,18 @@ const ProductScreen = ({ match, history }) => {
       alert('Review Submitted');
       setRating(0);
       setComment('');
+
       dispatch({ type: PRODUCT_REVIEW_RESET });
     }
+    dispatch(myListOrders());
     dispatch(listProductDetails(match.params.id));
   }, [match, dispatch, successProductReview]);
 
   const addToCartHandler = () => {
-    history.push(`/cart/${match.params.id}?qty=${qty}`);
+    const productId = match.params.id;
+    dispatch(addToCartItem(productId, qty));
+
+    history.push(`/cart/${productId}?qty=${qty}`);
   };
 
   const submitHandler = (e) => {
