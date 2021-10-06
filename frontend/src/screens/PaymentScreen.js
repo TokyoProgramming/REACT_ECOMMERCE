@@ -38,7 +38,7 @@ const ShippingScreen = ({ history }) => {
               name="paymentMethod"
               value="PayPal"
               checked
-              onChange={(e) => setPaymentMethod(e.target.method)}
+              onChange={(e) => setPaymentMethod(e.target.value)}
             ></Form.Check>
 
             <Form.Check
@@ -47,7 +47,7 @@ const ShippingScreen = ({ history }) => {
               id="Stripe"
               name="paymentMethod"
               value="Stripe"
-              onChange={(e) => setPaymentMethod(e.target.method)}
+              onChange={(e) => setPaymentMethod(e.target.value)}
             ></Form.Check>
           </Col>
         </Form.Group>

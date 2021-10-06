@@ -17,8 +17,8 @@ const addOrderItems = asyncHandler(async (req, res) => {
     totalPrice,
   } = req.body;
 
-  const orders = await Order.find({ user: req.user._id });
-  const notPaidOrders = orders.filter((item) => item.isPaid === false);
+  // const orders = await Order.find({ user: req.user._id });
+  // const notPaidOrders = orders.filter((item) => item.isPaid === false);
 
   if (orderItems && orderItems.length === 0) {
     res.status(400);

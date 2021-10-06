@@ -11,7 +11,6 @@ import ProductCarousel from '../components/ProductCarousel';
 
 import { listProducts } from '../actions/productActions';
 import { getUserCart } from '../actions/cartActions';
-// import { getUserCart } from '../actions/cartActions';
 
 const HomeScreen = ({ match }) => {
   const keyword = match.params.keyword;
@@ -37,6 +36,7 @@ const HomeScreen = ({ match }) => {
   return (
     <>
       <Meta />
+
       {!keyword ? (
         <ProductCarousel />
       ) : (

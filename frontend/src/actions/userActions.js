@@ -64,7 +64,10 @@ export const login = (email, password) => async (dispatch) => {
       });
     }
   } catch (error) {
-    if ((error.message = 'Complete 2FA Auth')) {
+    const errorText = error.message.split(' ');
+    const statusCode = errorText.at(-1);
+
+    if (statusCode !== '404') {
       const text =
         `${email} has not finished 2FA Auth Yet.` +
         'we sent you email please finish auth';

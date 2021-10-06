@@ -18,6 +18,7 @@ import {
 import { resetCartItems } from '../actions/cartActions';
 import { updateProductCountInStock } from '../actions/productActions';
 import { updateUserProfile } from '../actions/userActions';
+import StripeContainer from '../stripe/StripeContainer';
 
 const OrderScreen = ({ match, history }) => {
   const orderId = match.params.id;
@@ -26,6 +27,9 @@ const OrderScreen = ({ match, history }) => {
 
   const orderDetails = useSelector((state) => state.orderDetails);
   const { order, loading, error } = orderDetails;
+
+  const cart = useSelector((state) => state.cart);
+  const { paymentMethod } = cart;
 
   const orderPay = useSelector((state) => state.orderPay);
   const { loading: loadingPay, success: successPay } = orderPay;
@@ -68,7 +72,6 @@ const OrderScreen = ({ match, history }) => {
       };
       document.body.appendChild(script);
     };
-
     if (!order || successPay || successDeliver || order._id !== orderId) {
       dispatch({ type: ORDER_PAY_RESET });
       dispatch(getOrderDetails(orderId));
@@ -97,6 +100,7 @@ const OrderScreen = ({ match, history }) => {
   }, [dispatch, orderId, successPay, successDeliver, order, userInfo, history]);
 
   const successPaymentHandler = (paymentResult) => {
+    console.log(paymentResult);
     dispatch(payOrder(orderId, paymentResult));
   };
 
@@ -111,6 +115,7 @@ const OrderScreen = ({ match, history }) => {
   ) : (
     <>
       <h1>Order {order._id}</h1>
+
       <Row>
         <Col md={8}>
           <ListGroup variant="flush">
@@ -225,26 +230,27 @@ const OrderScreen = ({ match, history }) => {
                   </Col>
                 </Row>
               </ListGroup.Item>
-
               <ListGroup.Item>
                 <Row>
                   <Col>Get Point</Col>
                   <Col>{Math.floor(order.itemsPrice / 100)}</Col>
                 </Row>
               </ListGroup.Item>
+
               {!order.isPaid && (
                 <ListGroup.Item>
                   {loadingPay && <Loader />}
                   {!sdkReady ? (
                     <Loader />
                   ) : (
-                    <PayPalButton
+                    <StripeContainer
                       amount={order.totalPrice}
-                      onSuccess={successPaymentHandler}
+                      orderId={orderId}
                     />
                   )}
                 </ListGroup.Item>
               )}
+
               {loadingDeliver && <Loader />}
               {userInfo &&
                 userInfo.isAdmin &&

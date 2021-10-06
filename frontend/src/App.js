@@ -1,6 +1,7 @@
 import './App.css';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
+
 import Header from './components/Header';
 import Footer from './components/Footer';
 
@@ -61,6 +62,7 @@ function App() {
           <Route path="/admin/orderlist" component={OrderListScreen} />
         </Container>
       </main>
+
       <Footer />
     </Router>
   );

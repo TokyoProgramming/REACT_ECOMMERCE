@@ -10,27 +10,31 @@ import { sendEmailCtr } from './emailController.js';
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-
-  if (user.isVerify === true) {
-    if (user && (await user.matchPassword(password))) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        isVerify: user.isVerify,
-        point: user.point,
-        token: generateToken(user._id),
-      });
-    } else {
-      res.status(401);
-      throw new Error('Invalid email or password');
+  if (user) {
+    if (user.isVerify === true) {
+      if (user && (await user.matchPassword(password))) {
+        res.json({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          isVerify: user.isVerify,
+          point: user.point,
+          token: generateToken(user._id),
+        });
+      } else {
+        res.status(401);
+        throw new Error('Invalid email or password');
+      }
+    } else if (user.isVerify === false) {
+      if (user && (await user.matchPassword(password))) {
+        res.status(401);
+        throw new Error('Complete 2FA Auth');
+      }
     }
-  } else if (user.isVerify === false) {
-    if (user && (await user.matchPassword(password))) {
-      res.status(401);
-      throw new Error('Complete 2FA Auth');
-    }
+  } else {
+    res.status(404);
+    throw new Error('user not found');
   }
 });
 

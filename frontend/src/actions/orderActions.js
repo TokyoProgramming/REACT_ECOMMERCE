@@ -111,14 +111,46 @@ export const payOrder =
           Authorization: `Bearer ${userInfo.token}`,
         },
       };
-      const { data } = await axios.put(
-        `/api/orders/${orderId}/pay`,
-        paymentResult,
-        config
-      );
+      await axios.put(`/api/orders/${orderId}/pay`, paymentResult, config);
       dispatch({
         type: ORDER_PAY_SUCCESS,
-        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: ORDER_PAY_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
+
+export const payOrderStripe =
+  (orderId, id, amount) => async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: ORDER_PAY_REQUEST,
+      });
+      const {
+        userLogin: { userInfo },
+      } = getState();
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+      const info = {
+        id,
+        amount,
+      };
+
+      await axios.post(`/api/stripe/${orderId}/charge`, info, config);
+      // await axios.put(`/api/orders/${orderId}/pay`, info, config);
+
+      dispatch({
+        type: ORDER_PAY_SUCCESS,
       });
     } catch (error) {
       dispatch({
