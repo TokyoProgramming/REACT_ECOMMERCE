@@ -26,7 +26,7 @@ const Header = () => {
   useEffect(() => {}, [loading, userCartItem, userInfo, totalItem]);
 
   return (
-    <header>
+    <header className="header">
       <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
         <Container>
           <LinkContainer to="/">
@@ -74,6 +74,9 @@ const Header = () => {
                   </LinkContainer>
                   <LinkContainer to="/admin/orderlist">
                     <NavDropdown.Item>Orders</NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to="/admin/adminpanel">
+                    <NavDropdown.Item>Panel</NavDropdown.Item>
                   </LinkContainer>
                 </NavDropdown>
               )}

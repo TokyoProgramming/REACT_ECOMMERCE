@@ -31,3 +31,13 @@
     ##    history.push('/token/:id/verify')
     ## 3. token verify page , send token to the email again
     ## 4. verify token => login (get jwt token)
+
+## secret
+
+NODE_ENV = development
+PORT = 5000
+MONGO_URI = mongodb+srv://yusuke1234:yusuke1234@cluster0.pbvy2.mongodb.net/shop?retryWrites=true&w=majority
+JWT_TOKEN = abc123
+PAYPAL_CLIENT_ID = AWC3O9h-qxrj0ZsGfSNlCnPfK6Q2Yvql51l_q90H-OlbWSeLA7V8GT7UaE0Nn52HdRyouKqQ_By2WX4a
+REACT_APP_STRIPE_SECRET_KEY=sk_test_51Jh5GUEUVzsUE3jHNlnGCv6N1ivTE9WFXqGefu6BkN8LG7qpqZVuQHq1b4JvPNrCPmoktPAucsDxw4eBvbR3TF6S000YDvVkJq
+STRIPE_SECRET = sk_test_51Jh5GUEUVzsUE3jHNlnGCv6N1ivTE9WFXqGefu6BkN8LG7qpqZVuQHq1b4JvPNrCPmoktPAucsDxw4eBvbR3TF6S000YDvVkJq

@@ -1,6 +1,6 @@
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { payOrderStripe } from '../actions/orderActions';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 const CheckoutForm = ({ amount, orderId }) => {
   const stripe = useStripe();
